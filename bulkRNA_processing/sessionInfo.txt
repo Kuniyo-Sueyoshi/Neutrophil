@@ -1,0 +1,60 @@
+sessionInfo()
+R version 4.2.3 (2023-03-15)
+Platform: x86_64-conda-linux-gnu (64-bit)
+Running under: Ubuntu 16.04.7 LTS
+
+Matrix products: default
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+other attached packages:
+[1] GSVA_1.46.0   stringr_1.5.1 readr_2.1.5   dplyr_1.1.2   tibble_3.2.1
+[6] edgeR_3.40.2  limma_3.54.2  tximport_1.26.0
+
+loaded via a namespace (and not attached):
+ [1] rsvd_1.0.5                  Rcpp_1.0.10
+ [3] locfit_1.5-9.8              lattice_0.20-45
+ [5] png_0.1-8                   Biostrings_2.66.0
+ [7] SingleCellExperiment_1.20.1 utf8_1.2.3
+ [9] R6_2.5.1                    GenomeInfoDb_1.34.9
+[11] stats4_4.2.3                RSQLite_2.2.20
+[13] httr_1.4.7                  pillar_1.9.0
+[15] sparseMatrixStats_1.10.0    zlibbioc_1.44.0
+[17] rlang_1.1.3                 irlba_2.3.5.1
+[19] annotate_1.76.0             blob_1.2.3
+[21] S4Vectors_0.36.2            Matrix_1.5-3
+[23] BiocParallel_1.32.6         beachmat_2.14.2
+[25] RCurl_1.98-1.12             bit_4.0.5
+[27] DelayedArray_0.24.0         HDF5Array_1.26.0
+[29] BiocSingular_1.14.0         compiler_4.2.3
+[31] pkgconfig_2.0.3             BiocGenerics_0.44.0
+[33] tidyselect_1.2.1            SummarizedExperiment_1.28.0
+[35] KEGGREST_1.38.0             GenomeInfoDbData_1.2.9
+[37] IRanges_2.32.0              codetools_0.2-19
+[39] matrixStats_1.1.0           XML_3.99-0.13
+[41] fansi_1.0.4                 crayon_1.5.2
+[43] tzdb_0.4.0                  bitops_1.0-7
+[45] rhdf5filters_1.10.1         grid_4.2.3
+[47] xtable_1.8-4                GSEABase_1.60.0
+[49] lifecycle_1.0.4             DBI_1.1.3
+[51] magrittr_2.0.3              ScaledMatrix_1.6.0
+[53] graph_1.76.0                cli_3.6.1
+[55] stringi_1.7.12              cachem_1.0.7
+[57] XVector_0.38.0              DelayedMatrixStats_1.20.0
+[59] generics_0.1.3              vctrs_0.6.0
+[61] Rhdf5lib_1.20.0             tools_4.2.3
+[63] bit64_4.0.5                 Biobase_2.58.0
+[65] glue_1.8.0                  hms_1.1.3
+[67] MatrixGenerics_1.10.0       parallel_4.2.3
+[69] fastmap_1.1.1               AnnotationDbi_1.60.0
+[71] rhdf5_2.42.0                GenomicRanges_1.50.2
+[73] memoise_2.0.1

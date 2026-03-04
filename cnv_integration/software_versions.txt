@@ -1,0 +1,12 @@
+CNV Integration Environment
+===========================
+
+Python
+------
+Python 3.9.16 (conda-forge)
+
+Python packages
+---------------
+pandas 1.5.3
+numpy 1.23.5
+

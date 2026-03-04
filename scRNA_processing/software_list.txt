@@ -1,0 +1,6 @@
+Cell Ranger
+  Version: 7.0.0
+  Reference: refdata-gex-GRCh38-2020-A
+             refdata-gex-GRCh38-and-mm10-2020-A
+  Source: 10x Genomics
+  

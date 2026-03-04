@@ -1,0 +1,18 @@
+WGS-based Clonal Inference Environment
+======================================
+
+Primary Analysis Tool
+---------------------
+PhyloWGS
+  Version: v20181105
+  Source: https://github.com/morrislab/phylowgs
+  Python: 2.7.18 (conda)
+
+
+Preprocessing Scripts
+---------------------
+FACETS-to-PhyloWGS conversion script
+  Python version: 3.9.16 (conda-forge)
+  pandas: 1.5.3
+  numpy: 1.23.5
+

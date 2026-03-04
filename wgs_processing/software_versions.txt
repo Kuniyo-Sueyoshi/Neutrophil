@@ -1,0 +1,39 @@
+Whole-Genome Sequencing (WGS) Analysis Environment
+==================================================
+
+Reference Genome
+----------------
+hg38 (Homo_sapiens_assembly38.fasta)
+
+Core Software
+-------------
+
+BWA
+  Version: 0.7.19-r1273
+
+Samtools
+  Version: 1.5
+  HTSlib: 1.5
+
+GATK
+  Version: 4.1.4.1
+  HTSJDK: 2.21.0
+  Picard: 2.21.2
+
+FACETS
+  Version: 0.5.14
+  R version used: 3.6.3
+
+Java
+  OpenJDK version: 17.0.3
+
+Operating System
+----------------
+Linux (x86_64)
+
+Notes
+-----
+- Read alignment was performed using BWA-MEM.
+- Duplicate marking and base recalibration were performed using GATK.
+- Somatic variants were called using GATK Mutect2 (tumor–normal mode).
+- Allele-specific copy number analysis was performed using FACETS.

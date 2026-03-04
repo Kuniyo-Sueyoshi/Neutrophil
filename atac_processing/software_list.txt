@@ -1,0 +1,22 @@
+ATAC-seq Processing Environment
+================================
+
+Workflow
+--------
+nf-core/atacseq
+  Version: 2.1.2
+  Source: https://nf-co.re/atacseq
+
+Nextflow
+--------
+Version: 24.04.4 (build 5917)
+
+Execution Profile
+-----------------
+-profile docker
+
+Genome
+------
+GRCh38
+
+

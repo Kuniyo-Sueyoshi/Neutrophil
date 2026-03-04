@@ -1,0 +1,26 @@
+Bulk RNA-seq Processing Environment
+==================================
+
+Quantification
+--------------
+Salmon
+  Version: 0.14.1
+  Mode: paired-end, -l A, --validateMappings
+
+Reference indices
+-----------------
+
+Human (CellM_Histamine)
+  Reference transcriptome:
+    Homo_sapiens.GRCh38.cdna.all.fa.gz
+  indexVersion: 4
+  auxKmerLength: 31
+  indexType: 1
+
+Mouse (Neutrophil_PDX)
+  Reference transcriptome:
+    Mus_musculus.GRCm39.cdna.all.fa.gz
+  indexVersion: 4
+  auxKmerLength: 31
+  indexType: 1
+  
