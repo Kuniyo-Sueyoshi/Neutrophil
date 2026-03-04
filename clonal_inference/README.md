@@ -15,6 +15,7 @@ All file paths are generalized and must be edited prior to execution.
 
 ## Directory Structure
 
+```
 clonal_inference/
 ├── README.md
 ├── sessionInfo.txt
@@ -28,6 +29,7 @@ clonal_inference/
 │   ├── 05_simplify_seg_numbat.py
 │   └── 06_run_numbat.R
 └── output/
+```
 
 ---
 

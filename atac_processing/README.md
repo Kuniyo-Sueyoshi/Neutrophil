@@ -17,6 +17,7 @@ All file paths are generalized and must be edited prior to execution.
 
 ## Directory Structure
 
+```
 atac_processing/
 ├── README.md
 ├── software_list.txt
@@ -25,6 +26,7 @@ atac_processing/
 ├── script/
 │   └── 01_nfcore_atacseq.sh
 └── output/
+```
 
 ---
 

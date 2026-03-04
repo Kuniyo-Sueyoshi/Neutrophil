@@ -42,7 +42,7 @@ The scripts are organized by cohort to clearly separate **model development (MES
 # Directory Structure
 
 ```
-.
+external_validation/
 ├── MESOMICS
 │   ├── data/
 │   ├── output/

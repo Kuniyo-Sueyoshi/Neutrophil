@@ -18,6 +18,7 @@ File paths are generalized and must be edited prior to execution.
 
 ## Directory Structure
 
+```
 cnv_integration/
 ├── README.md
 ├── sessionInfo.txt
@@ -31,7 +32,9 @@ cnv_integration/
     ├── 01_segment_cnv.py
     ├── 02_sc_cnv_correlation.py
     └── utils_make_SegChr.py
+```
 
+---
 
 ## Software
 

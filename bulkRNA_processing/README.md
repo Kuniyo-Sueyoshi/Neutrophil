@@ -18,6 +18,7 @@ File paths are generalized and must be edited prior to execution.
 
 ## Directory Structure
 
+```
 bulkRNA_processing/
 ├── README.md
 ├── sessionInfo.txt
@@ -29,7 +30,8 @@ bulkRNA_processing/
     ├── 01_tximport_summarize.R
     ├── 02_CellM_bulk_limma_voom.R
     └── 03_Neutro_bulk_limma_voom.R
-    
+```
+
 ---
 
 ## Software

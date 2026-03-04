@@ -24,6 +24,7 @@ All file paths are generalized and should be edited before execution.
 
 ## Directory structure
 
+```
 scRNA_processing/
 ├── README.md
 ├── sessionInfo.txt
@@ -41,6 +42,7 @@ scRNA_processing/
 │   └── 06_NicheNet_ligand_activity.R
 ├── data/
 └── outp
+```
 
 ---
 
