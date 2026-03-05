@@ -36,19 +36,30 @@ suppressPackageStartupMessages({
 
 set.seed(123)
 
-# -----------------------------
-# User parameters (generalized)
-# -----------------------------
-HOME_DIR  <- "/PATH/TO/10X_OUTPUTS"
-SAMPLE_ID <- "Case01_T"
+# ==========================
+# Paths (EDIT BEFORE RUN)
+# ==========================
+BASE_DIR <- "/PATH/TO/scRNA_processing"
 
-# output: repo-local (scRNA_processing/output/<SAMPLE_ID>)
-args <- commandArgs(trailingOnly = FALSE)
-script_path <- sub("^--file=", "", args[grep("^--file=", args)])
-SCRIPT_DIR <- normalizePath(dirname(script_path))
-REPO_ROOT  <- normalizePath(file.path(SCRIPT_DIR, ".."))  # scRNA_processing/
-OUT_DIR    <- file.path(REPO_ROOT, "output", SAMPLE_ID)
+DATA_DIR <- file.path(BASE_DIR, "data")
+OUT_BASE <- file.path(BASE_DIR, "output")
+R_DIR    <- file.path(BASE_DIR, "R")
+
+# External inputs (EDIT)
+HOME_10X <- "/PATH/TO/10X_OUTPUTS"
+MSIGDB_HALLMARK_GMT <- "/PATH/TO/h.all.v2024.1.Hs.symbols.gmt"
+
+# ==========================
+# Sample (EDIT)
+# ==========================
+SAMPLE_ID <- "Case01"
+
+OUT_DIR <- file.path(OUT_BASE, SAMPLE_ID)
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
+
+# ==========================
+# QC thresholds
+# ==========================
 
 QC <- list(
   umi_min        = 500,
@@ -58,14 +69,15 @@ QC <- list(
   ribo_min_tumor = 5
 )
 
-MSIGDB_HALLMARK_GMT <- "/PATH/TO/MSIGDB/h.all.v2024.1.Hs.symbols.gmt"
+# ==========================
+# Source helper functions
+# ==========================
+source(file.path(R_DIR, "fn.cluster.log.R"))
+source(file.path(R_DIR, "fn.QCmetrics.R"))
 
-# -----------------------------
-# Helper functions
-# -----------------------------
-# source paths: stable regardless of working directory
-source(file.path(REPO_ROOT, "R", "fn.cluster.log.R"))
-source(file.path(REPO_ROOT, "R", "fn.QCmetrics.R"))
+# ==========================
+# Helper functions (local)
+# ==========================
 
 load_filtered_h5 <- function(home_dir, sample_id) {
   f <- file.path(home_dir, sample_id, "outs", "filtered_feature_bc_matrix.h5")
@@ -96,22 +108,18 @@ read_gmt <- function(gmt_file) {
   pathways
 }
 
+
 # ============================================================
 # 1) Load filtered counts and compute QC metrics (pre-SoupX)
 # ============================================================
-obj0 <- load_filtered_h5(HOME_DIR, SAMPLE_ID)
-
-# NOTE: keep the function call style consistent.
-# If add_qc_metrics() expects (obj, sample_id, cap=...), use the same signature everywhere.
+obj0 <- load_filtered_h5(HOME_10X, SAMPLE_ID)
 obj0 <- add_qc_metrics(obj0, cap = FALSE)
-
-# BUGFIX: sampleID -> SAMPLE_ID
 obj0$batch <- SAMPLE_ID
 
 # ============================================================
-# 2) SoupX ambient RNA correction (evaluated)
+# 2) SoupX ambient RNA correction
 # ============================================================
-soupx <- run_soupx(HOME_DIR, SAMPLE_ID)
+soupx <- run_soupx(HOME_10X, SAMPLE_ID)
 
 obj <- CreateSeuratObject(
   counts = soupx$counts,
@@ -119,8 +127,6 @@ obj <- CreateSeuratObject(
   min.cells = 1,
   min.features = 1
 )
-
-# keep consistent signature
 obj <- add_qc_metrics(obj, cap = FALSE)
 
 # ============================================================
@@ -164,7 +170,7 @@ obj <- fn.cluster.log(
 )
 
 # ============================================================
-# 8) Tumor-specific ribosomal RNA filtering
+# 7) Tumor-specific ribosomal RNA filtering
 # ============================================================
 obj <- subset(
   obj,
@@ -174,7 +180,7 @@ obj <- subset(
 )
 
 # ============================================================
-# 9) Re-cluster after tumor ribosomal filter
+# 8) Re-cluster after tumor ribosomal filter
 # ============================================================
 obj <- fn.cluster.log(
   data = obj,
@@ -183,7 +189,7 @@ obj <- fn.cluster.log(
 )
 
 # ============================================================
-# 11) Differential expression (Tumor.M vs Tumor.K)
+# 9) Differential expression (Tumor.M vs Tumor.K)
 # ============================================================
 obj_tumor <- subset(obj, subset = !is.na(TumorSubtype))
 Idents(obj_tumor) <- obj_tumor$TumorSubtype
@@ -205,7 +211,7 @@ write.table(
 )
 
 # ============================================================
-# 12) Pathway enrichment (fgsea; Hallmark)
+# 10) Pathway enrichment (fgsea; Hallmark)
 # ============================================================
 stats <- deg$avg_log2FC
 names(stats) <- deg$Gene
@@ -227,6 +233,6 @@ write.table(
 )
 
 # ============================================================
-# 13) Save processed object
+# 11) Save processed object
 # ============================================================
-saveRDS(obj, file = file.path(OUT_DIR, paste0(SAMPLE_ID, "_processed.rds")))
+saveRDS(obj, file = file.path(OUT_DIR, paste0("scRNAseq_", SAMPLE_ID, ".rds")))

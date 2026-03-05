@@ -23,13 +23,14 @@ bulkRNA_processing/
 ├── README.md
 ├── sessionInfo.txt
 ├── software_list.txt
-├── da
+├── data/
 ├── output/
 └── script/
-    ├── 00_salmon_quant.sh
-    ├── 01_tximport_summarize.R
-    ├── 02_CellM_bulk_limma_voom.R
-    └── 03_Neutro_bulk_limma_voom.R
+    ├── 01_salmon_quant.sh
+    ├── 02_tximport_summarize.R
+    ├── 03_CellM_bulk_limma_voom.R
+    └── 04_Neutro_bulk_limma_voom.R    
+
 ```
 
 ---

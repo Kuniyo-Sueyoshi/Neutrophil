@@ -41,7 +41,7 @@ scRNA_processing/
 │   ├── 05_PDX_joint_embedding_hg_mm.R
 │   └── 06_NicheNet_ligand_activity.R
 ├── data/
-└── outp
+└── output/
 ```
 
 ---

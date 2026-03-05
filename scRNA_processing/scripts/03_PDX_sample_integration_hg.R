@@ -1,9 +1,29 @@
 #!/usr/bin/env Rscript
 
-# ============================================================
-# PDX human tumor (hg) integration: Isotype vs Ly6G
-# Seurat v4.3.0.1
-# ============================================================
+############################################################
+# 03_PDX_sample_integration_hg.R
+#
+# Purpose:
+#   PDX human tumor (hg) integration: Isotype vs Ly6G.
+#   - Merge hg compartments
+#   - QC filtering, cell cycle scoring
+#   - SCT-based integration/clustering
+#   - DEG (Isotype vs Ly6G)
+#   - GO enrichment (Isotype-up genes)
+#   - Module scores (migration/chemotaxis and HA-response genes)
+#
+# Inputs (repo-local):
+#   output/PDX_split/PDX.M_Isotype/PDX.M_Isotype_hg.rds
+#   output/PDX_split/PDX.M_Ly6G/PDX.M_Ly6G_hg.rds
+#
+# External input (EDIT):
+#   HA_DEG_TSV : DEG table for histamine-response genes (e.g., Table S8)
+#
+# Outputs (repo-local):
+#   output/PDX_integration_hg/DEGs_Meso_Isotype_vs_Ly6G.tsv
+#   output/PDX_integration_hg/GO_BP_enrichment_Isotype_UP.tsv
+#   output/PDX_integration_hg/PDX_hg_Integrated.rds
+############################################################
 
 suppressPackageStartupMessages({
   library(Seurat)
@@ -17,42 +37,50 @@ suppressPackageStartupMessages({
 
 set.seed(123)
 
-# -----------------------------
-# 0) Resolve repo paths (stable)
-# -----------------------------
-args <- commandArgs(trailingOnly = FALSE)
-script_path <- sub("^--file=", "", args[grep("^--file=", args)])
-SCRIPT_DIR <- normalizePath(dirname(script_path))
-REPO_ROOT  <- normalizePath(file.path(SCRIPT_DIR, ".."))  # scRNA_processing/
+# ==========================
+# Paths (EDIT BEFORE RUN)
+# ==========================
+BASE_DIR <- "/PATH/TO/scRNA_processing"
 
-source(file.path(REPO_ROOT, "R", "fn.cluster.SCT.R"))
+OUT_BASE <- file.path(BASE_DIR, "output")
+R_DIR    <- file.path(BASE_DIR, "R")
 
-data("cc.genes", package = "Seurat")
+# External input (EDIT)
+HA_DEG_TSV <- "/PATH/TO/DEG_HA_vs_Control.tsv"  # e.g., Table S8
 
-# -----------------------------
-# 1) Inputs (generalized)
-# -----------------------------
-BASE_DIR   <- "/PATH/TO/SEURAT_OBJECTS/"
-OUT_DIR    <- file.path(REPO_ROOT, "output", "PDX_integration_hg")
+# Output
+OUT_DIR <- file.path(OUT_BASE, "PDX_integration_hg")
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 
-HA_DEG_TSV <- "/PATH/TO/DEG_HA_vs_Control.tsv" # Table S8
-
+# ==========================
+# Inputs (repo-local)
+# ==========================
 sampleIDs <- c("PDX.M_Isotype", "PDX.M_Ly6G")
 
-# -----------------------------
-# 2) Load and merge
-# -----------------------------
-obj_list <- lapply(sampleIDs, function(sid) {
-  readRDS(file.path(BASE_DIR, paste0(sid, "_hg.rds")))
-})
+IN_HG_RDS <- setNames(
+  file.path(OUT_BASE, "PDX_split", sampleIDs, paste0(sampleIDs, "_hg.rds")),
+  sampleIDs
+)
 
+# ==========================
+# Source helpers
+# ==========================
+source(file.path(R_DIR, "fn.cluster.SCT.R"))
+data("cc.genes", package = "Seurat")
+
+# ============================================================
+# 1) Load and merge
+# ============================================================
+obj_list <- lapply(sampleIDs, function(sid) readRDS(IN_HG_RDS[[sid]]))
 data <- merge(obj_list[[1]], y = obj_list[[2]])
 
+# condition label from batch (kept as original logic)
 data$condition <- ifelse(grepl("Isotype", data$batch), "Isotype", "Ly6G")
 Idents(data) <- data$condition
 
-# (以下、解析ロジックはそのまま)
+# ============================================================
+# 2) QC filtering (same thresholds as original)
+# ============================================================
 UMI.cutoff     <- 500
 Feature.cutoff <- 200
 Mt.cutoff      <- 15
@@ -69,18 +97,25 @@ data <- subset(
     percent.ribo  > ribo.cutoff
 )
 
+# ============================================================
+# 3) Cell cycle scoring
+# ============================================================
 data <- CellCycleScoring(
   data,
   s.features   = cc.genes$s.genes,
   g2m.features = cc.genes$g2m.genes
 )
 
+# ============================================================
+# 4) SCT clustering (Isotype vs Ly6G integration)
+# ============================================================
 data <- fn.cluster.SCT(
   data = data,
   batch = "condition",
   vars.to.regress = c("G2M.Score", "S.Score", "percent.mt")
 )
 
+# remove cluster 7 (as in original)
 data <- subset(data, subset = SCT_snn_res.1.2 != 7)
 
 data <- fn.cluster.SCT(
@@ -89,6 +124,9 @@ data <- fn.cluster.SCT(
   vars.to.regress = c("G2M.Score", "S.Score", "percent.mt")
 )
 
+# ============================================================
+# 5) DEG: Isotype vs Ly6G
+# ============================================================
 Idents(data) <- data$condition
 
 deg <- FindMarkers(
@@ -104,6 +142,9 @@ deg <- FindMarkers(
 
 write_tsv(deg, file.path(OUT_DIR, "DEGs_Meso_Isotype_vs_Ly6G.tsv"))
 
+# ============================================================
+# 6) GO enrichment: Isotype-up genes
+# ============================================================
 gene_up <- deg %>%
   filter(avg_log2FC > 0.5 & p_val_adj < 0.05) %>%
   pull(Gene)
@@ -122,6 +163,9 @@ ego_res <- ego@result %>% arrange(p.adjust)
 
 write_tsv(ego_res, file.path(OUT_DIR, "GO_BP_enrichment_Isotype_UP.tsv"))
 
+# ============================================================
+# 7) Module scores
+# ============================================================
 mig_genes <- AnnotationDbi::select(
   org.Hs.eg.db,
   keys    = "GO:0010634",
@@ -142,8 +186,7 @@ data <- AddModuleScore(
   name     = c("Migration.Score", "Chemotaxis.Score")
 )
 
-deg_HA <- read_tsv(HA_DEG_TSV)
-
+deg_HA <- read_tsv(HA_DEG_TSV, show_col_types = FALSE)
 genes_HA_UP <- deg_HA %>%
   filter(logFC > 0 & adj.P.Val < 0.05) %>%
   pull(Gene)
@@ -154,4 +197,8 @@ data <- AddModuleScore(
   name     = "HA.UP.Score"
 )
 
+# ============================================================
+# 8) Save integrated object
+# ============================================================
 saveRDS(data, file.path(OUT_DIR, "PDX_hg_Integrated.rds"))
+

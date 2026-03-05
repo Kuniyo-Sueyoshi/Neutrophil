@@ -4,75 +4,85 @@ set -euo pipefail
 ############################################################
 # 01_gatk_bwa_hg38.sh
 #
-# Whole-genome sequencing preprocessing pipeline
-# - Alignment (BWA-MEM) to hg38
-# - Sorting and indexing (samtools)
-# - MarkDuplicates (GATK)
-# - Base Quality Score Recalibration (BQSR)
+# Purpose:
+#   Whole-genome sequencing preprocessing (one sample per run)
+#   - Alignment (BWA-MEM) to hg38
+#   - Sorting and indexing (samtools)
+#   - MarkDuplicates (GATK)
+#   - Base Quality Score Recalibration (BQSR)
 #
-# Input FASTQ files:
-#   wgs_case01_normal_L002_R1.fastq.gz
-#   wgs_case01_normal_L002_R2.fastq.gz
-#   wgs_case01_tumor_L002_R1.fastq.gz
-#   wgs_case01_tumor_L002_R2.fastq.gz
+# Input FASTQ files (example):
+#   wgs_case01_{tumor,normal}_L002_R1.fastq.gz
+#   wgs_case01_{tumor,normal}_L002_R2.fastq.gz
 #
-# Sample name (SM tag): Case01
 ############################################################
 
 # ==========================
 # Paths (EDIT BEFORE RUN)
 # ==========================
-BAM_DIR="/PATH/TO/WGS_BAM_OUTPUT"
+BASE_DIR="/PATH/TO/wgs_processing"
 
-REF_FASTA="/PATH/TO/Homo_sapiens_assembly38.fasta"
-GERMLINE_RESOURCE="/PATH/TO/af-only-gnomad.hg38.vcf.gz"
+DATA_DIR="${BASE_DIR}/data"
+OUT_DIR="${BASE_DIR}/output"
 
-# ==========================
-# Sample
-# ==========================
-SAMPLE_NAME="Case01"
-
-TUMOR_BAM="${BAM_DIR}/wgs_case01_tumor_L002_bqsr.bam"
-NORMAL_BAM="${BAM_DIR}/wgs_case01_normal_L002_bqsr.bam"
-
-# IMPORTANT: Mutect2 -normal expects the NORMAL sample name (SM tag) in the BAM header.
-# If your normal SM tag is the same as SAMPLE_NAME, keep as-is.
-NORMAL_SM="${SAMPLE_NAME}"
+REF_FASTA="${DATA_DIR}/Homo_sapiens_assembly38.fasta"
+KNOWN_SITES_VCF="${DATA_DIR}/dbsnp138.hg38.vcf.gz"  # bgzip+tabix indexed
 
 # ==========================
-# Output directories (repo-local)
+# Sample / site (EDIT)
 # ==========================
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SAMPLE_ID="case01"
+LANE="L002"
+SITE="tumor"   # set "tumor" or "normal" and run this script twice
 
-OUT_DIR="${REPO_ROOT}/output/${SAMPLE_NAME}/mutect2"
-mkdir -p "$OUT_DIR"
+# FASTQ prefix and read group tags
+PREFIX="wgs_${SAMPLE_ID}_${SITE}_${LANE}"       # e.g., wgs_case01_tumor_L002
+SM_TAG="Case01_${SITE}"                        # e.g., Case01_tumor / Case01_normal
+RG_ID="${PREFIX}"
 
-UNFILTERED_VCF="${OUT_DIR}/${SAMPLE_NAME}.unfiltered.vcf.gz"
-FILTERED_VCF="${OUT_DIR}/WGS_${SAMPLE_NAME}.filt.vcf.gz"
+R1=${DATA_DIR}/${PREFIX}_R1.fastq.gz
+R2=${DATA_DIR}/${PREFIX}_R2.fastq.gz
 
-# ==========================
-# 1) Mutect2
-# ==========================
-gatk Mutect2 \
-  -R "$REF_FASTA" \
-  -I "$TUMOR_BAM" \
-  -I "$NORMAL_BAM" \
-  -normal "$NORMAL_SM" \
-  --germline-resource "$GERMLINE_RESOURCE" \
-  --native-pair-hmm-threads 24 \
-  -O "$UNFILTERED_VCF"
+READGROUP="@RG\tID:${RG_ID}\tLB:lib1\tPL:ILLUMINA\tSM:${SM_TAG}\tPU:${LANE}"
 
 # ==========================
-# 2) FilterMutectCalls
+# Output files
 # ==========================
-gatk FilterMutectCalls \
-  -R "$REF_FASTA" \
-  -V "$UNFILTERED_VCF" \
-  -O "$FILTERED_VCF"
+SORT_BAM="${OUT_DIR}/${PREFIX}_sort.bam"
+MARKDUP_BAM="${OUT_DIR}/${PREFIX}_markdup.bam"
+BQSR_BAM="${OUT_DIR}/${PREFIX}_bqsr.bam"
+
+METRICS_TXT="${OUT_DIR}/${PREFIX}.markdup.metrics.txt"
+RECAL_TXT="${OUT_DIR}/${PREFIX}_recal.txt"
 
 # ==========================
-# 3) Index
+# 1) Alignment
 # ==========================
-tabix -p vcf "$FILTERED_VCF"
+bwa mem -t 8 -K 10000000 -R "$READGROUP" "$REF_FASTA_BWA" "$R1" "$R2" \
+  | samtools sort -@8 -m 10G -O bam -o "$SORT_BAM"
 
+samtools index "$SORT_BAM"
+
+# ==========================
+# 2) MarkDuplicates
+# ==========================
+gatk --java-options "-Xmx50g" MarkDuplicates \
+  -I "$SORT_BAM" \
+  -O "$MARKDUP_BAM" \
+  -M "$METRICS_TXT" \
+  --TMP_DIR "$TMP_DIR"
+
+# ==========================
+# 3) BQSR
+# ==========================
+gatk --java-options "-Xmx50g" BaseRecalibrator \
+  -I "$MARKDUP_BAM" \
+  -O "$RECAL_TXT" \
+  --known-sites "$KNOWN_SITES_VCF" \
+  -R "$REF_FASTA_GATK"
+
+gatk ApplyBQSR \
+  -R "$REF_FASTA_GATK" \
+  -I "$MARKDUP_BAM" \
+  --bqsr-recal-file "$RECAL_TXT" \
+  -O "$BQSR_BAM"
