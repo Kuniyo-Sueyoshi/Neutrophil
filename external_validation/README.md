@@ -42,6 +42,7 @@ The scripts are organized by cohort to clearly separate **model development (MES
 # Directory Structure
 
 ```
+
 external_validation/
 ├── MESOMICS/
 │   ├── data/
@@ -65,6 +66,7 @@ external_validation/
         ├── 02_validate_lasso_cox_TCGA.R
         ├── 03_prepare_stage_histology.R
         └── 04_pancan_multivar.R
+
 ```
 
 ---
