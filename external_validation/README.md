@@ -7,7 +7,12 @@ This repository contains analysis scripts used for survival modeling and validat
 The workflow consists of two main components:
 
 * **MESOMICS cohort analyses**
+ Signature scoring, correlation analyses, survival modeling, and predictive model construction.
+
 * **TCGA pan-cancer analyses**
+ Immune deconvolution, external validation of the MESOMICS-trained model, and multivariable Cox analyses across cancer types.
+
+The scripts are organized by cohort to separate **model development (MESOMICS)** from **external validation (TCGA)**.
 
 ---
 
