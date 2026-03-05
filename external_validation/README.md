@@ -4,42 +4,14 @@
 
 This repository contains analysis scripts used for survival modeling and validation of a histamine-response transcriptional signature in malignant pleural mesothelioma and pan-cancer cohorts.
 
-The workflow includes two main components:
-
-* **MESOMICS cohort analyses**
-  Signature scoring, correlation analyses, survival modeling, and predictive model construction.
-
-* **TCGA pan-cancer analyses**
-  Immune deconvolution, external validation of the MESOMICS-trained model, and multivariable Cox analyses across cancer types.
-
-The scripts are organized by cohort to separate **model development (MESOMICS)** from **external validation (TCGA)**.
-
----
-
-# Directory Structure
-
-```
-
-
-# External Validation and Survival Analysis Pipeline
-
-## Overview
-
-This repository contains analysis scripts used for survival modeling and validation of a histamine-response transcriptional signature in malignant pleural mesothelioma and pan-cancer cohorts.
-
 The workflow consists of two main components:
 
 * **MESOMICS cohort analyses**
-  Signature scoring, correlation analyses, survival modeling, and predictive model construction.
-
 * **TCGA pan-cancer analyses**
-  Immune deconvolution, external validation of the MESOMICS-trained model, and multivariable Cox analyses across cancer types.
-
-The scripts are organized by cohort to clearly separate **model development (MESOMICS)** from **external validation (TCGA)**.
 
 ---
 
-# Directory Structure
+## Directory Structure
 
 ```
 
