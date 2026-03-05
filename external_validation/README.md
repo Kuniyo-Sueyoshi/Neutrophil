@@ -43,7 +43,7 @@ The scripts are organized by cohort to clearly separate **model development (MES
 
 ```
 external_validation/
-├── MESOMICS
+├── MESOMICS/
 │   ├── data/
 │   ├── output/
 │   └── script/
@@ -52,17 +52,19 @@ external_validation/
 │       ├── 03_FAMD_and_Corr.HA.Neutrophil.R
 │       └── 04_surv.predict_model.construct.R
 │
-├── TCGA
-│   ├── data/
-│   │   ├── lookup_hist_collapse.tsv
-│   │   ├── lookup_hist_reference.tsv
-│   │   └── lookup_stage_collapse.tsv
-│   ├── output/
-│   └── script/
-│       ├── 01_quantiseq_pancancer.R
-│       ├── 02_validate_lasso_cox_TCGA.R
-│       ├── 03_prepare_stage_histology.R
-│       └── 04_pancan_multivar.R
+└── TCGA/
+    ├── data/
+    │   ├── lookup_hist_collapse.tsv
+    │   ├── lookup_hist_reference.tsv
+    │   └── lookup_stage_collapse.tsv
+    │
+    ├── output/
+    │
+    └── script/
+        ├── 01_quantiseq_pancancer.R
+        ├── 02_validate_lasso_cox_TCGA.R
+        ├── 03_prepare_stage_histology.R
+        └── 04_pancan_multivar.R
 ```
 
 ---
